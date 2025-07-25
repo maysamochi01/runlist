@@ -51,7 +51,7 @@ async function loadData() {
     return;
   }
   data = await res.json();
-  console.log('Loaded data:', data);  // เพิ่มบรรทัดนี้ดูข้อมูล
+  console.log('Loaded data:', data);
   populateFilters();
   renderTable();
 }
@@ -61,8 +61,8 @@ function populateFilters() {
   const ageSet = new Set();
 
   data.forEach(row => {
-    if (row.type) typeSet.add(row.type);
-    if (row.age_group) ageSet.add(row.age_group);
+    if (row["ประเภท"]) typeSet.add(row["ประเภท"]);
+    if (row["รุ่นอายุ"]) ageSet.add(row["รุ่นอายุ"]);
   });
 
   const typeFilter = document.getElementById('typeFilter');
@@ -74,7 +74,6 @@ function populateFilters() {
     typeFilter.appendChild(opt);
   });
 
-  // แสดงรุ่นอายุทั้งหมดก่อน
   updateAgeFilterByType('');
 }
 
@@ -85,8 +84,8 @@ function updateAgeFilterByType(selectedType) {
   const filteredAges = new Set();
 
   data.forEach(row => {
-    if (!selectedType || row.type === selectedType) {
-      if (row.age_group) filteredAges.add(row.age_group);
+    if (!selectedType || row["ประเภท"] === selectedType) {
+      if (row["รุ่นอายุ"]) filteredAges.add(row["รุ่นอายุ"]);
     }
   });
 
@@ -107,18 +106,23 @@ function renderTable() {
   tbody.innerHTML = "";
 
   const filtered = data.filter(row => {
-    const matchesName = row.name.toLowerCase().includes(keyword);
-    const matchesType = !selectedType || row.type === selectedType;
-    const matchesAge = !selectedAge || row.age_group === selectedAge;
+    const name = (row["ชื่อ-สกุล Name"] || "").toLowerCase();
+    const type = row["ประเภท"] || "";
+    const ageGroup = row["รุ่นอายุ"] || "";
+
+    const matchesName = name.includes(keyword);
+    const matchesType = !selectedType || type === selectedType;
+    const matchesAge = !selectedAge || ageGroup === selectedAge;
+
     return matchesName && matchesType && matchesAge;
   });
 
   for (const row of filtered) {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td class="p-3">${row.name}</td>
-      <td class="p-3">${row.type}</td>
-      <td class="p-3">${row.age_group}</td>
+      <td class="p-3">${row["ชื่อ-สกุล Name"] || ""}</td>
+      <td class="p-3">${row["ประเภท"] || ""}</td>
+      <td class="p-3">${row["รุ่นอายุ"] || ""}</td>
     `;
     tbody.appendChild(tr);
   }
